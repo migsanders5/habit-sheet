@@ -1,0 +1,129 @@
+body{
+
+    margin:0;
+    padding:18px;
+    font-family:Arial, sans-serif;
+    background:#f3f3f3;
+
+}
+
+
+header{
+
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:15px;
+
+}
+
+
+button{
+
+    cursor:pointer;
+
+}
+
+
+.grid-container{
+
+    overflow-x:auto;
+
+}
+
+
+table{
+
+    border-collapse:collapse;
+    background:white;
+    font-size:14px;
+
+}
+
+
+th,
+td{
+
+    border:1px solid #ddd;
+    padding:5px;
+    text-align:center;
+    white-space:nowrap;
+
+}
+
+
+th{
+
+    background:#eeeeee;
+
+}
+
+
+/* Frozen columns */
+
+.sticky-col{
+
+    position:sticky;
+    background:white;
+    z-index:2;
+
+}
+
+
+.habit-col{
+
+    left:0;
+    min-width:150px;
+    text-align:left;
+
+}
+
+
+.percent-col{
+
+    left:160px;
+    min-width:45px;
+
+}
+
+
+thead .sticky-col{
+
+    z-index:3;
+    background:#eeeeee;
+
+}
+
+
+/* Habit appearance */
+
+.habit-text{
+
+    font-weight:bold;
+
+}
+
+
+.menu-btn{
+
+    float:right;
+    border:none;
+    background:none;
+    font-size:18px;
+
+}
+
+
+.before-created{
+
+    background:#e5e5e5;
+    color:#999;
+
+}
+
+
+input[type="checkbox"]{
+
+    width:18px;
+    height:18px;
+
+}
