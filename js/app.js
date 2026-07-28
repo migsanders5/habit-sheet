@@ -2,30 +2,47 @@
 // HABIT SHEET
 // ===================================
 
+
 let habits = JSON.parse(localStorage.getItem("habits")) || [];
+
 
 const habitGrid = document.getElementById("habitGrid");
 const addHabitBtn = document.getElementById("addHabitBtn");
+
 
 const DAYS_TO_SHOW = 14;
 
 
 // --------------------------------
-// Save
+// Save habits
 // --------------------------------
+
 function saveHabits() {
-    localStorage.setItem("habits", JSON.stringify(habits));
+
+    localStorage.setItem(
+        "habits",
+        JSON.stringify(habits)
+    );
+
 }
 
 
 // --------------------------------
-// Format date as YYYY-MM-DD (local time)
+// Date helpers (LOCAL TIME)
 // --------------------------------
+
 function formatLocalDate(date) {
 
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+
+    const month = String(
+        date.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+        date.getDate()
+    ).padStart(2, "0");
+
 
     return `${year}-${month}-${day}`;
 
@@ -33,93 +50,174 @@ function formatLocalDate(date) {
 
 
 
-
-
-// --------------------------------
-// Today's date
-// --------------------------------
 function getToday() {
-    return formatLocalDate(new Date());
+
+    return formatLocalDate(
+        new Date()
+    );
+
 }
 
 
+
+function formatDisplayDate(dateString) {
+
+    const parts = dateString.split("-");
+
+
+    const date = new Date(
+        Number(parts[0]),
+        Number(parts[1]) - 1,
+        Number(parts[2])
+    );
+
+
+    return date.toLocaleDateString(
+        undefined,
+        {
+            month: "short",
+            day: "numeric"
+        }
+    );
+
+}
+
+
+
 // --------------------------------
-// Generate dates
+// Generate date columns
 // --------------------------------
+
 function getDisplayedDates() {
 
     const dates = [];
 
+
+    const today = new Date();
+
+
     for (let i = 0; i < DAYS_TO_SHOW; i++) {
 
-        const d = new Date();
 
-        d.setDate(d.getDate() - i);
+        const date = new Date(today);
 
-        dates.push(formatLocalDate(d));
+
+        date.setDate(
+            today.getDate() - i
+        );
+
+
+        dates.push(
+            formatLocalDate(date)
+        );
 
     }
 
+
     return dates;
+
 }
 
 
+
 // --------------------------------
-// Completion %
+// Completion percentage
 // --------------------------------
+
 function getCompletion(habit) {
 
-    const start = new Date(habit.dateAdded);
-    const today = new Date(getToday());
+
+    const start = new Date(
+        habit.dateAdded + "T00:00:00"
+    );
+
+
+    const today = new Date();
+
 
     let total = 0;
     let completed = 0;
 
 
+
     while (start <= today) {
 
-        const key = start.toISOString().split("T")[0];
+
+        const key = formatLocalDate(start);
+
 
         total++;
 
+
         if (habit.history[key]) {
+
             completed++;
+
         }
 
-        start.setDate(start.getDate() + 1);
+
+        start.setDate(
+            start.getDate() + 1
+        );
+
 
     }
 
 
-    return total === 0
-        ? 0
-        : Math.round((completed / total) * 100);
+
+    if (total === 0) {
+
+        return 0;
+
+    }
+
+
+    return Math.round(
+        (completed / total) * 100
+    );
+
 
 }
 
 
+
 // --------------------------------
-// Toggle completion
+// Toggle checkbox
 // --------------------------------
-function toggleHabit(id, date, checked) {
+
+function toggleHabit(
+    id,
+    date,
+    checked
+) {
+
 
     const habit = habits.find(
         h => h.id === id
     );
 
+
+    if (!habit) return;
+
+
     habit.history[date] = checked;
 
+
     saveHabits();
+
 
     renderGrid();
 
 }
 
 
+
 // --------------------------------
-// Rename habit
+// Rename
 // --------------------------------
+
 function renameHabit(id) {
+
 
     const habit = habits.find(
         h => h.id === id
@@ -137,25 +235,30 @@ function renameHabit(id) {
 
     habit.name = newName;
 
+
     saveHabits();
+
 
     renderGrid();
 
 }
 
 
+
 // --------------------------------
-// Delete habit
+// Delete
 // --------------------------------
+
 function deleteHabit(id) {
 
 
-    const confirmDelete = confirm(
-        "Delete this habit?"
-    );
+    if (
+        !confirm("Delete this habit?")
+    ) {
 
+        return;
 
-    if (!confirmDelete) return;
+    }
 
 
     habits = habits.filter(
@@ -165,63 +268,75 @@ function deleteHabit(id) {
 
     saveHabits();
 
+
     renderGrid();
 
 }
 
 
+
 // --------------------------------
 // Add habit
 // --------------------------------
-addHabitBtn.addEventListener("click",()=>{
+
+addHabitBtn.addEventListener(
+    "click",
+    () => {
 
 
-    const name = prompt(
-        "Habit name:"
-    );
+        const name = prompt(
+            "Habit name:"
+        );
 
 
-    if (!name) return;
+        if (!name) return;
 
 
-    habits.push({
 
-        id: Date.now().toString(),
+        habits.push({
 
-        name:name,
+            id: Date.now().toString(),
 
-        dateAdded:getToday(),
+            name: name,
 
-        history:{}
+            dateAdded: getToday(),
 
-    });
+            history: {}
 
-
-    saveHabits();
-
-    renderGrid();
+        });
 
 
-});
+
+        saveHabits();
+
+
+        renderGrid();
+
+
+    }
+);
+
 
 
 // --------------------------------
-// Render
+// Render grid
 // --------------------------------
-function renderGrid(){
+
+function renderGrid() {
 
 
-    habitGrid.innerHTML="";
+    habitGrid.innerHTML = "";
 
 
     const dates = getDisplayedDates();
 
 
-    const table=document.createElement("table");
+
+    const table = document.createElement(
+        "table"
+    );
 
 
-
-    // HEADER
 
     let html = `
 
@@ -229,31 +344,28 @@ function renderGrid(){
 
     <tr>
 
+
         <th class="sticky-col habit-col">
             Habit
         </th>
+
 
         <th class="sticky-col percent-col">
             %
         </th>
 
+
     `;
 
 
-    dates.forEach(date=>{
+
+    dates.forEach(date => {
 
 
         html += `
 
         <th>
-            ${new Date(date)
-            .toLocaleDateString(
-                undefined,
-                {
-                    month:"short",
-                    day:"numeric"
-                }
-            )}
+            ${formatDisplayDate(date)}
         </th>
 
         `;
@@ -262,39 +374,54 @@ function renderGrid(){
     });
 
 
-    html += `</tr></thead>`;
+
+    html += `
+
+    </tr>
+
+    </thead>
+
+    `;
+
 
 
     table.innerHTML = html;
 
 
 
-    const tbody=document.createElement("tbody");
+    const tbody = document.createElement(
+        "tbody"
+    );
 
 
 
-    habits.forEach(habit=>{
+    habits.forEach(habit => {
 
 
-        const row=document.createElement("tr");
+        const row = document.createElement(
+            "tr"
+        );
 
 
-        let rowHTML=`
+        let rowHTML = `
 
 
         <td class="sticky-col habit-col">
+
 
             <span class="habit-text">
                 ${habit.name}
             </span>
 
+
             <button
-                class="menu-btn"
-                data-id="${habit.id}">
+            class="menu-btn">
                 ⋮
             </button>
 
+
         </td>
+
 
 
         <td class="sticky-col percent-col">
@@ -308,10 +435,12 @@ function renderGrid(){
 
 
 
-        dates.forEach(date=>{
+        dates.forEach(date => {
 
 
-            if(date < habit.dateAdded){
+            if (
+                date < habit.dateAdded
+            ) {
 
 
                 rowHTML += `
@@ -324,13 +453,15 @@ function renderGrid(){
 
 
             }
-            else{
+
+            else {
 
 
                 const checked =
                     habit.history[date]
                     ? "checked"
                     : "";
+
 
 
                 rowHTML += `
@@ -348,6 +479,7 @@ function renderGrid(){
 
                 `;
 
+
             }
 
 
@@ -355,19 +487,18 @@ function renderGrid(){
 
 
 
-        row.innerHTML=rowHTML;
+        row.innerHTML = rowHTML;
 
 
 
-        // Checkbox listeners
-
-        row.querySelectorAll("input")
-        .forEach(box=>{
+        row.querySelectorAll(
+            "input"
+        ).forEach(box => {
 
 
             box.addEventListener(
                 "change",
-                e=>{
+                e => {
 
 
                     toggleHabit(
@@ -385,12 +516,12 @@ function renderGrid(){
 
 
 
-        // Menu button
-
-        row.querySelector(".menu-btn")
+        row.querySelector(
+            ".menu-btn"
+        )
         .addEventListener(
             "click",
-            ()=>{
+            () => {
 
 
                 const choice = prompt(
@@ -401,12 +532,22 @@ function renderGrid(){
                 );
 
 
-                if(choice==="1")
-                    renameHabit(habit.id);
+                if (choice === "1") {
+
+                    renameHabit(
+                        habit.id
+                    );
+
+                }
 
 
-                if(choice==="2")
-                    deleteHabit(habit.id);
+                if (choice === "2") {
+
+                    deleteHabit(
+                        habit.id
+                    );
+
+                }
 
 
             }
@@ -420,14 +561,23 @@ function renderGrid(){
     });
 
 
-    table.appendChild(tbody);
+
+    table.appendChild(
+        tbody
+    );
 
 
-    habitGrid.appendChild(table);
+    habitGrid.appendChild(
+        table
+    );
 
 
 }
 
 
+
+// --------------------------------
+// Initial load
+// --------------------------------
 
 renderGrid();
